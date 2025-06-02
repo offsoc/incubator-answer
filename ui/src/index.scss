@@ -247,16 +247,16 @@ img[src=''] {
     }
   }
   pre {
-    background-color: var(--an-e9ecef);
+    background-color: var(--bs-gray-100);
     border-radius: 0.25rem;
     padding: 1rem;
     max-height: 38rem;
+    white-space: pre-wrap;
   }
   blockquote {
     border-left: 0.25rem solid #ced4da;
     padding: 1rem;
     color: #6c757d;
-    background-color: var(--an-e9ecef);
     p {
       color: var(--bs-body-color);
     }

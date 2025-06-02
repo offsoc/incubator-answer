@@ -1275,12 +1275,12 @@ ui:
       display_name:
         label: Visningsnamn
         msg: Display name cannot be empty.
-        msg_range: Display name up to 30 characters.
+        msg_range: Display name must be 2-30 characters in length.
       username:
         label: Användarnamn
         caption: People can mention you as "@username".
         msg: Username cannot be empty.
-        msg_range: Username up to 30 characters.
+        msg_range: Username must be 2-30 characters in length.
         character: 'Must use the character set "a-z", "0-9", " - . _"'
       avatar:
         label: Profilbild
@@ -1748,11 +1748,11 @@ ui:
     seo: SEO
     customize: Anpassa
     themes: Teman
-    css_html: CSS/HTML
     login: Logga in
     privileges: Privileges
     plugins: Plugins
     installed_plugins: Installed Plugins
+    apperance: Appearance
   website_welcome: Välkommen till {{site_name}}
   user_center:
     login: Login
@@ -1852,10 +1852,10 @@ ui:
         fields:
           display_name:
             label: Visningsnamn
-            msg_range: Display name up to 30 characters.
+            msg_range: Display name must be 2-30 characters in length.
           username:
             label: Användarnamn
-            msg_range: Username up to 30 characters.
+            msg_range: Username must be 2-30 characters in length.
           email:
             label: Email
             msg_invalid: Ogiltig e-postadress.
@@ -1887,9 +1887,9 @@ ui:
       name: Namn
       email: Email
       reputation: Reputation
-      created_at: Created Time
-      delete_at: Deleted Time
-      suspend_at: Suspended Time
+      created_at: Created time
+      delete_at: Deleted time
+      suspend_at: Suspended time
       status: Status
       role: Roll
       action: Action
@@ -2103,7 +2103,7 @@ ui:
       color_scheme:
         label: Färgschema
       navbar_style:
-        label: Navbar style
+        label: Navbar background style
       primary_color:
         label: Primary color
         text: Modify the colors used by your themes

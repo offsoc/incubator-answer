@@ -36,12 +36,16 @@ const store = create<IType>((set) => ({
   theme_options: [{ label: 'Default', value: 'default' }],
   theme_config: {
     default: {
-      navbar_style: 'colored',
+      navbar_style: DEFAULT_THEME_COLOR,
       primary_color: DEFAULT_THEME_COLOR,
     },
   },
   update: (params) =>
     set((state) => {
+      // Compatibility default value is colored or light before v1.5.1
+      if (!params.theme_config.default.navbar_style.startsWith('#')) {
+        params.theme_config.default.navbar_style = DEFAULT_THEME_COLOR;
+      }
       return {
         ...state,
         ...params,

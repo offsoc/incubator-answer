@@ -78,7 +78,7 @@ const Index = ({ value }, ref) => {
     <ImgViewer>
       <div
         ref={previewRef}
-        className="preview-wrap position-relative p-3 bg-light rounded text-break text-wrap mt-2 fmt"
+        className="preview-wrap position-relative p-3 rounded text-break text-wrap mt-2 fmt"
         dangerouslySetInnerHTML={{ __html: html }}
       />
     </ImgViewer>

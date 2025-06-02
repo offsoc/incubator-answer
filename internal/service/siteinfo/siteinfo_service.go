@@ -22,6 +22,7 @@ package siteinfo
 import (
 	"context"
 	"encoding/json"
+	errpkg "errors"
 	"fmt"
 	"strings"
 
@@ -33,6 +34,7 @@ import (
 	"github.com/apache/answer/internal/schema"
 	"github.com/apache/answer/internal/service/config"
 	"github.com/apache/answer/internal/service/export"
+	"github.com/apache/answer/internal/service/file_record"
 	questioncommon "github.com/apache/answer/internal/service/question_common"
 	"github.com/apache/answer/internal/service/siteinfo_common"
 	tagcommon "github.com/apache/answer/internal/service/tag_common"
@@ -49,6 +51,7 @@ type SiteInfoService struct {
 	tagCommonService      *tagcommon.TagCommonService
 	configService         *config.ConfigService
 	questioncommon        *questioncommon.QuestionCommon
+	fileRecordService     *file_record.FileRecordService
 }
 
 func NewSiteInfoService(
@@ -58,6 +61,7 @@ func NewSiteInfoService(
 	tagCommonService *tagcommon.TagCommonService,
 	configService *config.ConfigService,
 	questioncommon *questioncommon.QuestionCommon,
+	fileRecordService *file_record.FileRecordService,
 
 ) *SiteInfoService {
 	plugin.RegisterGetSiteURLFunc(func() string {
@@ -76,6 +80,7 @@ func NewSiteInfoService(
 		tagCommonService:      tagCommonService,
 		configService:         configService,
 		questioncommon:        questioncommon,
+		fileRecordService:     fileRecordService,
 	}
 }
 
@@ -437,4 +442,48 @@ func (s *SiteInfoService) UpdatePrivilegesConfig(ctx context.Context, req *schem
 		}
 	}
 	return
+}
+
+func (s *SiteInfoService) CleanUpRemovedBrandingFiles(
+	ctx context.Context,
+	newBranding *schema.SiteBrandingReq,
+	currentBranding *schema.SiteBrandingResp,
+) error {
+	var allErrors []error
+	currentFiles := map[string]string{
+		"logo":        currentBranding.Logo,
+		"mobile_logo": currentBranding.MobileLogo,
+		"square_icon": currentBranding.SquareIcon,
+		"favicon":     currentBranding.Favicon,
+	}
+
+	newFiles := map[string]string{
+		"logo":        newBranding.Logo,
+		"mobile_logo": newBranding.MobileLogo,
+		"square_icon": newBranding.SquareIcon,
+		"favicon":     newBranding.Favicon,
+	}
+
+	for key, currentFile := range currentFiles {
+		newFile := newFiles[key]
+		if currentFile != "" && currentFile != newFile {
+			fileRecord, err := s.fileRecordService.GetFileRecordByURL(ctx, currentFile)
+			if err != nil {
+				allErrors = append(allErrors, err)
+				continue
+			}
+			if fileRecord == nil {
+				err := errpkg.New("file record is nil for key " + key)
+				allErrors = append(allErrors, err)
+				continue
+			}
+			if err := s.fileRecordService.DeleteAndMoveFileRecord(ctx, fileRecord); err != nil {
+				allErrors = append(allErrors, err)
+			}
+		}
+	}
+	if len(allErrors) > 0 {
+		return errpkg.Join(allErrors...)
+	}
+	return nil
 }

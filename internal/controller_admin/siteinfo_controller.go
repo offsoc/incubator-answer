@@ -28,6 +28,7 @@ import (
 	"github.com/apache/answer/internal/schema"
 	"github.com/apache/answer/internal/service/siteinfo"
 	"github.com/gin-gonic/gin"
+	"github.com/segmentfault/pacman/log"
 )
 
 // SiteInfoController site info controller
@@ -274,8 +275,17 @@ func (sc *SiteInfoController) UpdateBranding(ctx *gin.Context) {
 	if handler.BindAndCheck(ctx, req) {
 		return
 	}
-	err := sc.siteInfoService.SaveSiteBranding(ctx, req)
-	handler.HandleResponse(ctx, err, nil)
+	currentBranding, getBrandingErr := sc.siteInfoService.GetSiteBranding(ctx)
+	if getBrandingErr == nil {
+		cleanUpErr := sc.siteInfoService.CleanUpRemovedBrandingFiles(ctx, req, currentBranding)
+		if cleanUpErr != nil {
+			log.Errorf("failed to clean up removed branding file(s): %v", cleanUpErr)
+		}
+	} else {
+		log.Errorf("failed to get current site branding: %v", getBrandingErr)
+	}
+	saveErr := sc.siteInfoService.SaveSiteBranding(ctx, req)
+	handler.HandleResponse(ctx, saveErr, nil)
 }
 
 // UpdateSiteWrite update site write info

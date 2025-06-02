@@ -24,7 +24,7 @@ import { Link, NavLink, useLocation, useMatch } from 'react-router-dom';
 
 import classnames from 'classnames';
 
-import { userCenter, floppyNavigation } from '@/utils';
+import { userCenter, floppyNavigation, isLight } from '@/utils';
 import {
   loggedUserInfoStore,
   siteInfoStore,
@@ -81,10 +81,14 @@ const Header: FC = () => {
     setShowMobileSideNav(false);
   }, [location.pathname]);
 
-  let navbarStyle = 'theme-colored';
+  let navbarStyle = 'theme-light';
+  let themeMode = 'light';
   const { theme, theme_config } = themeSettingStore((_) => _);
   if (theme_config?.[theme]?.navbar_style) {
-    navbarStyle = `theme-${theme_config[theme].navbar_style}`;
+    // const color = theme_config[theme].navbar_style.startsWith('#')
+    themeMode = isLight(theme_config[theme].navbar_style) ? 'light' : 'dark';
+    console.log('isLightTheme', themeMode);
+    navbarStyle = `theme-${themeMode}`;
   }
 
   useEffect(() => {
@@ -103,9 +107,12 @@ const Header: FC = () => {
 
   return (
     <Navbar
-      variant={navbarStyle === 'theme-colored' ? 'dark' : ''}
+      data-bs-theme={themeMode}
       expand="xl"
       className={classnames('sticky-top', navbarStyle)}
+      style={{
+        backgroundColor: theme_config[theme].navbar_style,
+      }}
       id="header">
       <div className="w-100 d-flex align-items-center px-3">
         <Navbar.Toggle
@@ -179,8 +186,8 @@ const Header: FC = () => {
           <>
             <Link
               className={classnames('me-2 btn btn-link', {
-                'link-light': navbarStyle === 'theme-colored',
-                'link-primary': navbarStyle !== 'theme-colored',
+                'link-light': navbarStyle === 'theme-dark',
+                'link-primary': navbarStyle !== 'theme-dark',
               })}
               onClick={() => floppyNavigation.storageLoginRedirect()}
               to={userCenter.getLoginUrl()}>
@@ -190,7 +197,7 @@ const Header: FC = () => {
               <Link
                 className={classnames(
                   'btn',
-                  navbarStyle === 'theme-colored' ? 'btn-light' : 'btn-primary',
+                  navbarStyle === 'theme-dark' ? 'btn-light' : 'btn-primary',
                 )}
                 to={userCenter.getSignUpUrl()}>
                 {t('btns.signup')}

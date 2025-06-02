@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/apache/answer/internal/base/constant"
@@ -31,6 +32,7 @@ import (
 	"github.com/apache/answer/internal/service/revision"
 	"github.com/apache/answer/internal/service/service_config"
 	"github.com/apache/answer/internal/service/siteinfo_common"
+	usercommon "github.com/apache/answer/internal/service/user_common"
 	"github.com/apache/answer/pkg/checker"
 	"github.com/apache/answer/pkg/dir"
 	"github.com/apache/answer/pkg/writer"
@@ -44,6 +46,7 @@ type FileRecordRepo interface {
 	GetFileRecordPage(ctx context.Context, page, pageSize int, cond *entity.FileRecord) (
 		fileRecordList []*entity.FileRecord, total int64, err error)
 	DeleteFileRecord(ctx context.Context, id int) (err error)
+	GetFileRecordByURL(ctx context.Context, fileURL string) (record *entity.FileRecord, err error)
 }
 
 // FileRecordService file record service
@@ -52,6 +55,7 @@ type FileRecordService struct {
 	revisionRepo    revision.RevisionRepo
 	serviceConfig   *service_config.ServiceConfig
 	siteInfoService siteinfo_common.SiteInfoCommonService
+	userService     *usercommon.UserCommon
 }
 
 // NewFileRecordService new file record service
@@ -60,12 +64,14 @@ func NewFileRecordService(
 	revisionRepo revision.RevisionRepo,
 	serviceConfig *service_config.ServiceConfig,
 	siteInfoService siteinfo_common.SiteInfoCommonService,
+	userService *usercommon.UserCommon,
 ) *FileRecordService {
 	return &FileRecordService{
 		fileRecordRepo:  fileRecordRepo,
 		revisionRepo:    revisionRepo,
 		serviceConfig:   serviceConfig,
 		siteInfoService: siteInfoService,
+		userService:     userService,
 	}
 }
 
@@ -104,6 +110,21 @@ func (fs *FileRecordService) CleanOrphanUploadFiles(ctx context.Context) {
 			if fileRecord.CreatedAt.AddDate(0, 0, 2).After(time.Now()) {
 				continue
 			}
+			if isBrandingOrAvatarFile(fileRecord.FilePath) {
+				if strings.Contains(fileRecord.FilePath, constant.BrandingSubPath+"/") {
+					if fs.siteInfoService.IsBrandingFileUsed(ctx, fileRecord.FilePath) {
+						continue
+					}
+				} else if strings.Contains(fileRecord.FilePath, constant.AvatarSubPath+"/") {
+					if fs.userService.IsAvatarFileUsed(ctx, fileRecord.FilePath) {
+						continue
+					}
+				}
+				if err := fs.DeleteAndMoveFileRecord(ctx, fileRecord); err != nil {
+					log.Error(err)
+				}
+				continue
+			}
 			if checker.IsNotZeroString(fileRecord.ObjectID) {
 				_, exist, err := fs.revisionRepo.GetLastRevisionByObjectID(ctx, fileRecord.ObjectID)
 				if err != nil {
@@ -129,12 +150,16 @@ func (fs *FileRecordService) CleanOrphanUploadFiles(ctx context.Context) {
 				}
 			}
 			// Delete and move the file record
-			if err := fs.deleteAndMoveFileRecord(ctx, fileRecord); err != nil {
+			if err := fs.DeleteAndMoveFileRecord(ctx, fileRecord); err != nil {
 				log.Error(err)
 			}
 		}
 		page++
 	}
+}
+
+func isBrandingOrAvatarFile(filePath string) bool {
+	return strings.Contains(filePath, constant.BrandingSubPath+"/") || strings.Contains(filePath, constant.AvatarSubPath+"/")
 }
 
 func (fs *FileRecordService) PurgeDeletedFiles(ctx context.Context) {
@@ -152,7 +177,7 @@ func (fs *FileRecordService) PurgeDeletedFiles(ctx context.Context) {
 	return
 }
 
-func (fs *FileRecordService) deleteAndMoveFileRecord(ctx context.Context, fileRecord *entity.FileRecord) error {
+func (fs *FileRecordService) DeleteAndMoveFileRecord(ctx context.Context, fileRecord *entity.FileRecord) error {
 	// Delete the file record
 	if err := fs.fileRecordRepo.DeleteFileRecord(ctx, fileRecord.ID); err != nil {
 		return fmt.Errorf("delete file record error: %v", err)
@@ -169,4 +194,13 @@ func (fs *FileRecordService) deleteAndMoveFileRecord(ctx context.Context, fileRe
 
 	log.Debugf("delete and move file: %s", fileRecord.FileURL)
 	return nil
+}
+
+func (fs *FileRecordService) GetFileRecordByURL(ctx context.Context, fileURL string) (record *entity.FileRecord, err error) {
+	record, err = fs.fileRecordRepo.GetFileRecordByURL(ctx, fileURL)
+	if err != nil {
+		log.Errorf("error retrieving file record by URL: %v", err)
+		return
+	}
+	return
 }

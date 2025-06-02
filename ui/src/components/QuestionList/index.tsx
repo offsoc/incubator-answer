@@ -120,7 +120,7 @@ const QuestionList: FC<Props> = ({
             </Dropdown.Toggle>
 
             <Dropdown.Menu>
-              <Dropdown.Header>
+              <Dropdown.Header as="h6">
                 {t('view', { keyPrefix: 'btns' })}
               </Dropdown.Header>
               <Dropdown.Item eventKey="card" active={viewType === 'card'}>
