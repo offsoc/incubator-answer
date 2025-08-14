@@ -32,6 +32,7 @@ const interfaceSetting = create<InterfaceType>((set) => ({
     language: DEFAULT_LANG,
     time_zone: '',
     default_avatar: 'system',
+    gravatar_base_url: '',
   },
   update: (params) =>
     set(() => {

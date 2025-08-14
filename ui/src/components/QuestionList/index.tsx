@@ -103,7 +103,9 @@ const QuestionList: FC<Props> = ({
         <h5 className="fs-5 text-nowrap mb-3 mb-md-0">
           {source === 'questions'
             ? t('all_questions')
-            : t('x_questions', { count })}
+            : source === 'linked'
+              ? t('x_posts', { count })
+              : t('x_questions', { count })}
         </h5>
         <div className="d-flex flex-wrap">
           <QueryGroup
@@ -163,11 +165,6 @@ const QuestionList: FC<Props> = ({
                         curOrder === 'active' ? li.operated_at : li.created_at
                       }
                       className="text-secondary ms-1 flex-shrink-0"
-                      preFix={
-                        curOrder === 'active'
-                          ? t(li.operation_type)
-                          : t('asked')
-                      }
                     />
                   </div>
                   <h5 className="text-wrap text-break">

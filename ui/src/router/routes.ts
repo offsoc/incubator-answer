@@ -399,10 +399,6 @@ const routes: RouteNode[] = [
             page: 'pages/Admin/Login',
           },
           {
-            path: 'settings-users',
-            page: 'pages/Admin/SettingsUsers',
-          },
-          {
             path: 'privileges',
             page: 'pages/Admin/Privileges',
           },

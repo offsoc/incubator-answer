@@ -81,11 +81,7 @@ const Index: FC<Props> = ({ data }) => {
         <BaseUserCard data={data.object?.user_info} showAvatar={false} />
 
         <span className="split-dot" />
-        <FormatTime
-          time={data.object?.created_at}
-          className="me-3"
-          preFix={data.object_type === 'question' ? 'asked' : 'answered'}
-        />
+        <FormatTime time={data.object?.created_at} className="me-3" />
 
         <Counts
           className="my-2 my-sm-0"

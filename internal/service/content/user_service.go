@@ -141,7 +141,7 @@ func (us *UserService) GetOtherUserInfoByUsername(ctx context.Context, req *sche
 		return nil, errors.NotFound(reason.UserNotFound)
 	}
 	resp = &schema.GetOtherUserInfoByUsernameResp{}
-	resp.ConvertFromUserEntity(userInfo)
+	resp.ConvertFromUserEntityWithLang(ctx, userInfo)
 	resp.Avatar = us.siteInfoService.FormatAvatar(ctx, userInfo.Avatar, userInfo.EMail, userInfo.Status).GetURL()
 
 	// Only the user himself and the administrator can see the hidden questions
@@ -314,12 +314,8 @@ func (us *UserService) UserModifyPassword(ctx context.Context, req *schema.UserM
 // UpdateInfo update user info
 func (us *UserService) UpdateInfo(ctx context.Context, req *schema.UpdateInfoRequest) (
 	errFields []*validator.FormErrorField, err error) {
-	siteUsers, err := us.siteInfoService.GetSiteUsers(ctx)
-	if err != nil {
-		return nil, err
-	}
 
-	if siteUsers.AllowUpdateUsername && len(req.Username) > 0 {
+	if len(req.Username) > 0 {
 		if checker.IsInvalidUsername(req.Username) {
 			return append(errFields, &validator.FormErrorField{
 				ErrorField: "username",
@@ -359,7 +355,7 @@ func (us *UserService) UpdateInfo(ctx context.Context, req *schema.UpdateInfoReq
 		return nil, errors.BadRequest(reason.UserNotFound)
 	}
 
-	cond := us.formatUserInfoForUpdateInfo(oldUserInfo, req, siteUsers)
+	cond := us.formatUserInfoForUpdateInfo(oldUserInfo, req)
 
 	us.cleanUpRemovedAvatar(ctx, oldUserInfo.Avatar, cond.Avatar)
 
@@ -407,7 +403,7 @@ func (us *UserService) cleanUpRemovedAvatar(
 }
 
 func (us *UserService) formatUserInfoForUpdateInfo(
-	oldUserInfo *entity.User, req *schema.UpdateInfoRequest, siteUsersConf *schema.SiteUsersResp) *entity.User {
+	oldUserInfo *entity.User, req *schema.UpdateInfoRequest) *entity.User {
 	avatar, _ := json.Marshal(req.Avatar)
 
 	userInfo := &entity.User{}
@@ -420,25 +416,19 @@ func (us *UserService) formatUserInfoForUpdateInfo(
 	userInfo.Location = oldUserInfo.Location
 	userInfo.ID = req.UserID
 
-	if len(req.DisplayName) > 0 && siteUsersConf.AllowUpdateDisplayName {
+	if len(req.DisplayName) > 0 {
 		userInfo.DisplayName = req.DisplayName
 	}
-	if len(req.Username) > 0 && siteUsersConf.AllowUpdateUsername {
+	if len(req.Username) > 0 {
 		userInfo.Username = req.Username
 	}
-	if len(avatar) > 0 && siteUsersConf.AllowUpdateAvatar {
+	if len(avatar) > 0 {
 		userInfo.Avatar = string(avatar)
 	}
-	if siteUsersConf.AllowUpdateBio {
-		userInfo.Bio = req.Bio
-		userInfo.BioHTML = req.BioHTML
-	}
-	if siteUsersConf.AllowUpdateWebsite {
-		userInfo.Website = req.Website
-	}
-	if siteUsersConf.AllowUpdateLocation {
-		userInfo.Location = req.Location
-	}
+	userInfo.Bio = req.Bio
+	userInfo.BioHTML = req.BioHTML
+	userInfo.Website = req.Website
+	userInfo.Location = req.Location
 	return userInfo
 }
 

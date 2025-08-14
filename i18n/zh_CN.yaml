@@ -306,6 +306,14 @@ backend:
         other: "发生错误，{{.Field}} 格式错误，在 '{{.Content}}' 行数 {{.Line}}. {{.ExtraMessage}}"
       add_bulk_users_amount_error:
         other: "一次性添加的用户数量应在 1-{{.MaxAmount}} 之间。"
+      status_suspended_forever:
+        other: "<strong>该用户已被永久封禁。</strong>该用户不符合社区准则。"
+      status_suspended_until:
+        other: "<strong>该用户已被封禁至 {{.SuspendedUntil}}。</strong>该用户不符合社区准则。"
+      status_deleted:
+        other: "该用户已被删除。"
+      status_inactive:
+        other: "该用户未激活。"
     config:
       read_config_failed:
         other: 读取配置失败
@@ -809,7 +817,7 @@ ui:
     tag_wiki: 标签维基
     create_tag: 创建标签
     edit_tag: 编辑标签
-    ask_a_question: 提问题
+    ask_a_question: 创建问题
     edit_question: 编辑问题
     edit_answer: 编辑回答
     search: 搜索
@@ -1056,6 +1064,9 @@ ui:
     day: 天
     hours: 小时
     days: 日
+    month: 月
+    months: 月
+    year: 年
   reaction:
     heart: 爱心
     smile: 微笑
@@ -1111,10 +1122,10 @@ ui:
     more: 更多
     wiki: 维基
   ask:
-    title: 新增问题
+    title: 创建问题
     edit_title: 编辑问题
     default_reason: 编辑问题
-    default_first_reason: 新增问题
+    default_first_reason: 创建问题
     similar_questions: 相似问题
     form:
       fields:
@@ -1122,7 +1133,7 @@ ui:
           label: 修订版本
         title:
           label: 标题
-          placeholder: 请详细描述你的问题，想象你在问一个人
+          placeholder: 你的主题是什么？请具体说明。
           msg:
             empty: 标题不能为空。
             range: 标题最多 150 个字符
@@ -1150,7 +1161,7 @@ ui:
     add_btn: 添加标签
     create_btn: 创建新标签
     search_tag: 搜索标签
-    hint: "描述您的问题是关于什么，至少需要一个标签。"
+    hint: "描述您的内容是关于什么，至少需要一个标签。"
     no_result: 没有匹配的标签
     tag_required_text: 必选标签（至少一个）
   header:
@@ -1356,12 +1367,12 @@ ui:
     review: 您的修订将在审阅通过后显示。
     sent_success: 发送成功
   related_question:
-    title: 相关问题
+    title: 相似
     answers: 个回答
   linked_question:
-    title: 关联的问题
-    description: 问题关联到
-    no_linked_question: 这个问题没有相关联的问题。
+    title: 关联
+    description: 帖子关联到
+    no_linked_question: 没有与之关联的贴子。
   invite_to_answer:
     title: 受邀人
     desc: 邀请你认为可能知道答案的人。
@@ -1501,6 +1512,7 @@ ui:
     follow: 关注
     following: 已关注
     counts: "{{count}} 个结果"
+    counts_loading: "... 个结果"
     more: 更多
     sort_btns:
       relevance: 相关性
@@ -1552,6 +1564,7 @@ ui:
     all_questions: 全部问题
     x_questions: "{{ count }} 个问题"
     x_answers: "{{ count }} 个回答"
+    x_posts: "{{ count }} 个帖子"
     questions: 问题
     answers: 回答
     newest: 最新
@@ -1890,6 +1903,7 @@ ui:
       created_at: 创建时间
       delete_at: 删除时间
       suspend_at: 封禁时间
+      suspend_until: 封禁到期
       status: 状态
       role: 角色
       action: 操作
@@ -1924,6 +1938,8 @@ ui:
       suspend_user:
         title: 挂起此用户
         content: 被封禁的用户将无法登录。
+        label: 用户将被封禁多长时间？
+        forever: 永久
     questions:
       page_title: 问题
       unlisted: 已隐藏
@@ -1984,6 +2000,12 @@ ui:
         label: 时区
         msg: 时区不能为空。
         text: 选择一个与您相同时区的城市。
+      avatar:
+        label: 默认头像
+        text: 没有自定义头像的用户。
+      gravatar_base_url:
+        label: Gravatar 根路径 URL
+        text: Gravatar 提供商的 API 基础的 URL。当为空时忽略。
     smtp:
       page_title: SMTP
       from_email:
@@ -2111,13 +2133,16 @@ ui:
       page_title: CSS 与 HTML
       custom_css:
         label: 自定义 CSS
-        text: 这将作为 &lt;link> 标签插入
+        text: >
+
       head:
         label: 头部
-        text: 这将在 &lt;/head> 前插入
+        text: >
+
       header:
         label: 页眉
-        text: 这将在 &lt;body> 后插入
+        text: >
+
       footer:
         label: 页脚
         text: 这将在 &lt;/body> 之前插入。

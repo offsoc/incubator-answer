@@ -180,8 +180,10 @@ func (m *Mentor) initSiteInfoInterface() {
 	}
 
 	interfaceData := map[string]string{
-		"language":  m.userData.Language,
-		"time_zone": localTimezone,
+		"language":          m.userData.Language,
+		"time_zone":         localTimezone,
+		"default_avatar":    "gravatar",
+		"gravatar_base_url": "https://www.gravatar.com/avatar/",
 	}
 	interfaceDataBytes, _ := json.Marshal(interfaceData)
 	_, m.err = m.engine.Context(m.ctx).Insert(&entity.SiteInfo{

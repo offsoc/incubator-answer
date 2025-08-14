@@ -24,7 +24,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 
 import type * as Type from '@/common/interface';
 import { Avatar, Icon } from '@/components';
-import { floppyNavigation } from '@/utils';
+import { floppyNavigation, isDarkTheme } from '@/utils';
 import { userCenterStore } from '@/stores';
 import { REACT_BASE_PATH } from '@/router/alias';
 
@@ -80,7 +80,7 @@ const Index: FC<Props> = ({ redDot, userInfo, logOut }) => {
         </NavLink>
       </Nav>
 
-      <Dropdown align="end">
+      <Dropdown align="end" data-bs-theme={isDarkTheme() ? 'dark' : 'light'}>
         <Dropdown.Toggle
           variant="success"
           id="dropdown-basic"

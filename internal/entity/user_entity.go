@@ -36,12 +36,16 @@ const (
 	UserAdminFlag = 1
 )
 
+// PermanentSuspensionTime is a fixed time representing permanent suspension (2099-12-31 23:59:59)
+var PermanentSuspensionTime = time.Date(2099, 12, 31, 23, 59, 59, 0, time.UTC)
+
 // User user
 type User struct {
 	ID             string    `xorm:"not null pk autoincr BIGINT(20) id"`
 	CreatedAt      time.Time `xorm:"created TIMESTAMP created_at"`
 	UpdatedAt      time.Time `xorm:"updated TIMESTAMP updated_at"`
 	SuspendedAt    time.Time `xorm:"TIMESTAMP suspended_at"`
+	SuspendedUntil time.Time `xorm:"DATETIME suspended_until"`
 	DeletedAt      time.Time `xorm:"TIMESTAMP deleted_at"`
 	LastLoginDate  time.Time `xorm:"TIMESTAMP last_login_date"`
 	Username       string    `xorm:"not null default '' VARCHAR(50) UNIQUE username"`

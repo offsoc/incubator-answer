@@ -23,6 +23,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import classNames from 'classnames';
+import dayjs from 'dayjs';
 
 import {
   Pagination,
@@ -47,6 +48,7 @@ import { formatCount } from '@/utils';
 
 import DeleteUserModal from './components/DeleteUserModal';
 import Action from './components/Action';
+import SuspenseUserModal from './components/SuspenseUserModal';
 
 const UserFilterKeys: Type.UserFilterBy[] = [
   'normal',
@@ -67,6 +69,10 @@ const PAGE_SIZE = 10;
 const Users: FC = () => {
   const { t } = useTranslation('translation', { keyPrefix: 'admin.users' });
   const [deleteUserModalState, setDeleteUserModalState] = useState({
+    show: false,
+    userId: '',
+  });
+  const [suspenseUserModalState, setSuspenseUserModalState] = useState({
     show: false,
     userId: '',
   });
@@ -172,6 +178,13 @@ const Users: FC = () => {
     });
   };
 
+  const handleSuspenseUserModalState = (modalData: {
+    show: boolean;
+    userId: string;
+  }) => {
+    setSuspenseUserModalState(modalData);
+  };
+
   const showAddUser =
     !ucAgent?.enabled || (ucAgent?.enabled && adminUcAgent?.allow_create_user);
   const showActionPassword =
@@ -231,15 +244,20 @@ const Users: FC = () => {
           <tr>
             <th>{t('name')}</th>
             <th style={{ width: '12%' }}>{t('reputation')}</th>
-            <th style={{ width: '20%' }} className="min-w-15">
+            <th style={{ width: '15%' }} className="min-w-15">
               {t('email')}
             </th>
-            <th className="text-nowrap" style={{ width: '15%' }}>
+            <th className="text-nowrap" style={{ width: '12%' }}>
               {t('created_at')}
             </th>
             {(curFilter === 'deleted' || curFilter === 'suspended') && (
-              <th className="text-nowrap" style={{ width: '15%' }}>
+              <th className="text-nowrap" style={{ width: '12%' }}>
                 {curFilter === 'deleted' ? t('delete_at') : t('suspend_at')}
+              </th>
+            )}
+            {curFilter === 'suspended' && (
+              <th className="text-nowrap" style={{ width: '12%' }}>
+                {t('suspend_until')}
               </th>
             )}
 
@@ -275,9 +293,21 @@ const Users: FC = () => {
                   <FormatTime time={user.created_at} />
                 </td>
                 {curFilter === 'suspended' && (
-                  <td className="text-nowrap">
-                    <FormatTime time={user.suspended_at} />
-                  </td>
+                  <>
+                    <td className="text-nowrap">
+                      <FormatTime time={user.suspended_at} />
+                    </td>
+                    <td className="text-nowrap">
+                      {user.suspended_until <= 0 ||
+                      Number(
+                        dayjs(user.suspended_until * 1000).format('YYYY'),
+                      ) > 2099
+                        ? t('suspend_user.forever')
+                        : dayjs(user.suspended_until * 1000).format(
+                            t('long_date_with_time', { keyPrefix: 'dates' }),
+                          )}
+                    </td>
+                  </>
                 )}
                 {curFilter === 'deleted' && (
                   <td className="text-nowrap">
@@ -306,6 +336,7 @@ const Users: FC = () => {
                     currentUser={currentUser}
                     refreshUsers={refreshUsers}
                     showDeleteModal={changeDeleteUserModalState}
+                    showSuspenseModal={handleSuspenseUserModalState}
                   />
                 ) : null}
               </tr>
@@ -331,6 +362,17 @@ const Users: FC = () => {
           });
         }}
         onDelete={(val) => handleDelete(val)}
+      />
+      <SuspenseUserModal
+        show={suspenseUserModalState.show}
+        userId={suspenseUserModalState.userId}
+        onClose={() => {
+          handleSuspenseUserModalState({
+            show: false,
+            userId: '',
+          });
+        }}
+        refreshUsers={refreshUsers}
       />
     </>
   );

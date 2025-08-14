@@ -71,6 +71,11 @@ func (req *AnswerAddReq) Check() (errFields []*validator.FormErrorField, err err
 	return nil, nil
 }
 
+type GetAnswerInfoResp struct {
+	Info     *AnswerInfo       `json:"info"`
+	Question *QuestionInfoResp `json:"question"`
+}
+
 type AnswerUpdateReq struct {
 	ID           string `json:"id"`
 	QuestionID   string `json:"question_id"`

@@ -126,7 +126,6 @@ export const ADMIN_NAV_MENUS = [
       { name: 'write' },
       { name: 'seo' },
       { name: 'login' },
-      { name: 'users', path: 'settings-users' },
       { name: 'privileges' },
     ],
   },
@@ -660,3 +659,56 @@ export const SYSTEM_AVATAR_OPTIONS = [
 export const TAG_SLUG_NAME_MAX_LENGTH = 35;
 
 export const DEFAULT_THEME_COLOR = '#0033ff';
+
+export const SUSPENSE_USER_TIME = [
+  {
+    label: 'hours',
+    time: '24',
+    value: '24h',
+  },
+  {
+    label: 'hours',
+    time: '48',
+    value: '48h',
+  },
+  {
+    label: 'hours',
+    time: '72',
+    value: '72h',
+  },
+  {
+    label: 'days',
+    time: '7',
+    value: '7d',
+  },
+  {
+    label: 'days',
+    time: '14',
+    value: '14d',
+  },
+  {
+    label: 'months',
+    time: '1',
+    value: '1m',
+  },
+  {
+    label: 'months',
+    time: '2',
+    value: '2m',
+  },
+  {
+    label: 'months',
+    time: '3',
+    value: '3m',
+  },
+  {
+    label: 'months',
+    time: '6',
+    value: '6m',
+  },
+  {
+    label: 'year',
+    time: '1',
+    value: '1y',
+  },
+];

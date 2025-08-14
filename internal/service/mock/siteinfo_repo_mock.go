@@ -77,6 +77,21 @@ func (mr *MockSiteInfoRepoMockRecorder) GetByType(ctx, siteType any) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByType", reflect.TypeOf((*MockSiteInfoRepo)(nil).GetByType), ctx, siteType)
 }
 
+// IsBrandingFileUsed mocks base method.
+func (m *MockSiteInfoRepo) IsBrandingFileUsed(ctx context.Context, filePath string) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsBrandingFileUsed", ctx, filePath)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// IsBrandingFileUsed indicates an expected call of IsBrandingFileUsed.
+func (mr *MockSiteInfoRepoMockRecorder) IsBrandingFileUsed(ctx, filePath any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsBrandingFileUsed", reflect.TypeOf((*MockSiteInfoRepo)(nil).IsBrandingFileUsed), ctx, filePath)
+}
+
 // SaveByType mocks base method.
 func (m *MockSiteInfoRepo) SaveByType(ctx context.Context, siteType string, data *entity.SiteInfo) error {
 	m.ctrl.T.Helper()
@@ -305,4 +320,18 @@ func (m *MockSiteInfoCommonService) GetSiteWrite(ctx context.Context) (*schema.S
 func (mr *MockSiteInfoCommonServiceMockRecorder) GetSiteWrite(ctx any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSiteWrite", reflect.TypeOf((*MockSiteInfoCommonService)(nil).GetSiteWrite), ctx)
+}
+
+// IsBrandingFileUsed mocks base method.
+func (m *MockSiteInfoCommonService) IsBrandingFileUsed(ctx context.Context, filePath string) bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsBrandingFileUsed", ctx, filePath)
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// IsBrandingFileUsed indicates an expected call of IsBrandingFileUsed.
+func (mr *MockSiteInfoCommonServiceMockRecorder) IsBrandingFileUsed(ctx, filePath any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsBrandingFileUsed", reflect.TypeOf((*MockSiteInfoCommonService)(nil).IsBrandingFileUsed), ctx, filePath)
 }

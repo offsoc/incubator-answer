@@ -23,7 +23,7 @@ To learn more about the project, visit [answer.apache.org](https://answer.apache
 ### Running with docker
 
 ```bash
-docker run -d -p 9080:80 -v answer-data:/data --name answer apache/answer:1.5.1
+docker run -d -p 9080:80 -v answer-data:/data --name answer apache/answer:1.6.0
 ```
 
 For more information, see [Installation](https://answer.apache.org/docs/installation).
@@ -40,7 +40,7 @@ You can also check out the [plugins here](https://answer.apache.org/plugins).
 
 ### Prerequisites
 
-- Golang >= 1.22
+- Golang >= 1.23
 - Node.js >= 20
 - pnpm >= 9
 - [mockgen](https://github.com/uber-go/mock?tab=readme-ov-file#installation) >= 1.6.0

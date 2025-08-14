@@ -123,7 +123,7 @@ func (s *siteInfoCommonService) FormatListAvatar(ctx context.Context, userList [
 
 func (s *siteInfoCommonService) getAvatarDefaultConfig(ctx context.Context) (string, string) {
 	gravatarBaseURL, defaultAvatar := constant.DefaultGravatarBaseURL, constant.DefaultAvatar
-	usersConfig, err := s.GetSiteUsers(ctx)
+	usersConfig, err := s.GetSiteInterface(ctx)
 	if err != nil {
 		log.Error(err)
 	}

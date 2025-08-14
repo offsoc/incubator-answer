@@ -349,6 +349,42 @@ definitions:
     required:
     - content
     type: object
+  schema.AnswerInfo:
+    properties:
+      accepted:
+        type: integer
+      collected:
+        type: boolean
+      content:
+        type: string
+      create_time:
+        type: integer
+      html:
+        type: string
+      id:
+        type: string
+      member_actions:
+        description: MemberActions
+        items:
+          $ref: '#/definitions/schema.PermissionMemberAction'
+        type: array
+      question_id:
+        type: string
+      question_info:
+        $ref: '#/definitions/schema.QuestionInfoResp'
+      status:
+        type: integer
+      update_time:
+        type: integer
+      update_user_info:
+        $ref: '#/definitions/schema.UserBasicInfo'
+      user_info:
+        $ref: '#/definitions/schema.UserBasicInfo'
+      vote_count:
+        type: integer
+      vote_status:
+        type: string
+    type: object
   schema.AnswerUpdateReq:
     properties:
       captcha_code:
@@ -595,6 +631,13 @@ definitions:
         description: if user is followed object will be true,otherwise false
         type: boolean
     type: object
+  schema.GetAnswerInfoResp:
+    properties:
+      info:
+        $ref: '#/definitions/schema.AnswerInfo'
+      question:
+        $ref: '#/definitions/schema.QuestionInfoResp'
+    type: object
   schema.GetBadgeInfoResp:
     properties:
       award_count:
@@ -830,6 +873,9 @@ definitions:
       status:
         description: user status
         type: string
+      suspended_until:
+        description: suspended until timestamp
+        type: integer
       username:
         description: username
         type: string
@@ -916,6 +962,9 @@ definitions:
         type: string
       status_msg:
         type: string
+      suspended_until:
+        description: suspended until timestamp
+        type: integer
       username:
         description: username
         type: string
@@ -1358,6 +1407,9 @@ definitions:
       suspended_at:
         description: suspended time
         type: integer
+      suspended_until:
+        description: suspended until time
+        type: integer
       user_id:
         description: user id
         type: string
@@ -1455,6 +1507,31 @@ definitions:
       toast_return_message:
         type: boolean
     type: object
+  schema.Operation:
+    properties:
+      description:
+        type: string
+      level:
+        $ref: '#/definitions/schema.OperationLevel'
+      msg:
+        type: string
+      time:
+        type: integer
+      type:
+        type: string
+    type: object
+  schema.OperationLevel:
+    enum:
+    - info
+    - danger
+    - warning
+    - secondary
+    type: string
+    x-enum-varnames:
+    - OperationLevelInfo
+    - OperationLevelDanger
+    - OperationLevelWarning
+    - OperationLevelSecondary
   schema.OperationQuestionReq:
     properties:
       id:
@@ -1564,6 +1641,80 @@ definitions:
     - content
     - tags
     - title
+    type: object
+  schema.QuestionInfoResp:
+    properties:
+      accepted_answer_id:
+        type: string
+      answer_count:
+        type: integer
+      answered:
+        type: boolean
+      collected:
+        type: boolean
+      collection_count:
+        type: integer
+      content:
+        type: string
+      create_time:
+        type: integer
+      description:
+        type: string
+      edit_time:
+        type: integer
+      extends_actions:
+        items:
+          $ref: '#/definitions/schema.PermissionMemberAction'
+        type: array
+      first_answer_id:
+        type: string
+      follow_count:
+        type: integer
+      html:
+        type: string
+      id:
+        type: string
+      is_followed:
+        type: boolean
+      last_answer_id:
+        type: string
+      last_answered_user_info:
+        $ref: '#/definitions/schema.UserBasicInfo'
+      member_actions:
+        description: MemberActions
+        items:
+          $ref: '#/definitions/schema.PermissionMemberAction'
+        type: array
+      operation:
+        $ref: '#/definitions/schema.Operation'
+      pin:
+        type: integer
+      show:
+        type: integer
+      status:
+        type: integer
+      tags:
+        items:
+          $ref: '#/definitions/schema.TagResp'
+        type: array
+      title:
+        type: string
+      unique_view_count:
+        type: integer
+      update_time:
+        type: integer
+      update_user_info:
+        $ref: '#/definitions/schema.UserBasicInfo'
+      url_title:
+        type: string
+      user_info:
+        $ref: '#/definitions/schema.UserBasicInfo'
+      view_count:
+        type: integer
+      vote_count:
+        type: integer
+      vote_status:
+        type: string
     type: object
   schema.QuestionPageReq:
     properties:
@@ -2072,6 +2223,13 @@ definitions:
     type: object
   schema.SiteInterfaceReq:
     properties:
+      default_avatar:
+        enum:
+        - system
+        - gravatar
+        type: string
+      gravatar_base_url:
+        type: string
       language:
         maxLength: 128
         type: string
@@ -2079,11 +2237,19 @@ definitions:
         maxLength: 128
         type: string
     required:
+    - default_avatar
     - language
     - time_zone
     type: object
   schema.SiteInterfaceResp:
     properties:
+      default_avatar:
+        enum:
+        - system
+        - gravatar
+        type: string
+      gravatar_base_url:
+        type: string
       language:
         maxLength: 128
         type: string
@@ -2091,6 +2257,7 @@ definitions:
         maxLength: 128
         type: string
     required:
+    - default_avatar
     - language
     - time_zone
     type: object
@@ -2703,6 +2870,20 @@ definitions:
         - deleted
         - inactive
         type: string
+      suspend_duration:
+        enum:
+        - 24h
+        - 48h
+        - 72h
+        - 7d
+        - 14d
+        - 1m
+        - 2m
+        - 3m
+        - 6m
+        - 1y
+        - forever
+        type: string
       user_id:
         type: string
     required:
@@ -2725,6 +2906,8 @@ definitions:
         type: integer
       status:
         type: string
+      suspended_until:
+        type: integer
       username:
         type: string
       website:
@@ -2842,6 +3025,9 @@ definitions:
       status:
         description: user status
         type: string
+      suspended_until:
+        description: suspended until timestamp
+        type: integer
       username:
         description: username
         type: string
@@ -4263,13 +4449,13 @@ paths:
       - ApiKeyAuth: []
       summary: delete answer
       tags:
-      - api-answer
+      - Answer
     post:
       consumes:
       - application/json
-      description: Insert Answer
+      description: add answer
       parameters:
-      - description: AnswerAddReq
+      - description: add answer request
         in: body
         name: data
         required: true
@@ -4281,12 +4467,12 @@ paths:
         "200":
           description: OK
           schema:
-            type: string
+            $ref: '#/definitions/handler.RespBody'
       security:
       - ApiKeyAuth: []
-      summary: Insert Answer
+      summary: Add Answer
       tags:
-      - api-answer
+      - Answer
     put:
       consumes:
       - application/json
@@ -4304,17 +4490,17 @@ paths:
         "200":
           description: OK
           schema:
-            type: string
+            $ref: '#/definitions/handler.RespBody'
       security:
       - ApiKeyAuth: []
       summary: Update Answer
       tags:
-      - api-answer
+      - Answer
   /answer/api/v1/answer/acceptance:
     post:
       consumes:
       - application/json
-      description: Accepted
+      description: Accept Answer
       parameters:
       - description: AcceptAnswerReq
         in: body
@@ -4328,20 +4514,19 @@ paths:
         "200":
           description: OK
           schema:
-            type: string
+            $ref: '#/definitions/handler.RespBody'
       security:
       - ApiKeyAuth: []
-      summary: Accepted
+      summary: Accept Answer
       tags:
-      - api-answer
+      - Answer
   /answer/api/v1/answer/info:
     get:
       consumes:
       - application/json
-      description: Get Answer
+      description: Get Answer Detail
       parameters:
-      - default: "1"
-        description: Answer TagID
+      - description: id
         in: query
         name: id
         required: true
@@ -4352,10 +4537,15 @@ paths:
         "200":
           description: OK
           schema:
-            type: string
-      summary: Get Answer
+            allOf:
+            - $ref: '#/definitions/handler.RespBody'
+            - properties:
+                data:
+                  $ref: '#/definitions/schema.GetAnswerInfoResp'
+              type: object
+      summary: Get Answer Detail
       tags:
-      - api-answer
+      - Answer
   /answer/api/v1/answer/page:
     get:
       consumes:
@@ -4391,12 +4581,12 @@ paths:
             type: string
       summary: AnswerList
       tags:
-      - api-answer
+      - Answer
   /answer/api/v1/answer/recover:
     post:
       consumes:
       - application/json
-      description: recover deleted answer
+      description: recover the deleted answer
       parameters:
       - description: answer
         in: body

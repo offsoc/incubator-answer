@@ -382,6 +382,8 @@ export interface HelmetUpdate extends Omit<HelmetBase, 'pageTitle'> {
 export interface AdminSettingsInterface {
   language: string;
   time_zone?: string;
+  default_avatar: string;
+  gravatar_base_url: string;
 }
 
 export interface AdminSettingsSmtp {
@@ -403,8 +405,6 @@ export interface AdminSettingsUsers {
   allow_update_location: boolean;
   allow_update_username: boolean;
   allow_update_website: boolean;
-  default_avatar: string;
-  gravatar_base_url: string;
 }
 
 export interface SiteSettings {

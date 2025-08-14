@@ -132,6 +132,7 @@ func (ns *NotificationCommon) AddNotification(ctx context.Context, msg *schema.N
 		objInfo, err = ns.objectInfoService.GetInfo(ctx, req.ObjectInfo.ObjectID)
 		if err != nil {
 			log.Error(err)
+			return err
 		} else {
 			req.ObjectInfo.Title = objInfo.Title
 			questionID = objInfo.QuestionID
@@ -354,6 +355,9 @@ func (ns *NotificationCommon) SendNotificationToAllFollower(ctx context.Context,
 
 func (ns *NotificationCommon) syncNotificationToPlugin(ctx context.Context, objInfo *schema.SimpleObjectInfo,
 	msg *schema.NotificationMsg) {
+	if objInfo == nil {
+		return
+	}
 	siteInfo, err := ns.siteInfoService.GetSiteGeneral(ctx)
 	if err != nil {
 		log.Errorf("get site general info failed: %v", err)

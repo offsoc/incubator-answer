@@ -111,6 +111,10 @@ const (
 	MetaObjectNotFound               = "error.meta.object_not_found"
 	BadgeObjectNotFound              = "error.badge.object_not_found"
 	StatusInvalid                    = "error.common.status_invalid"
+	UserStatusInactive               = "error.user.status_inactive"
+	UserStatusSuspendedForever       = "error.user.status_suspended_forever"
+	UserStatusSuspendedUntil         = "error.user.status_suspended_until"
+	UserStatusDeleted                = "error.user.status_deleted"
 )
 
 // user external login reasons

@@ -208,6 +208,40 @@ img[src=''] {
 
 .fmt {
   width: 100%;
+  hr {
+    height: 3px;
+    border: none;
+    position: relative;
+    overflow: visible;
+    text-align: center;
+    opacity: 1;
+    flex: none;
+    margin: 1.5rem 0;
+    &::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(calc(-50% - 16px), -50%);
+      width: 3px;
+      height: 3px;
+      background-color: var(--bs-border-color);
+      border-radius: 50%;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 3px;
+      height: 3px;
+      background-color: var(--bs-border-color);
+      border-radius: 50%;
+      box-shadow: 16px 0 0 var(--bs-border-color);
+    }
+  }
   h1 {
     @extend .fs-3;
     margin-top: 2rem;

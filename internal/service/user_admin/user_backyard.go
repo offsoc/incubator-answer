@@ -59,7 +59,7 @@ import (
 
 // UserAdminRepo user repository
 type UserAdminRepo interface {
-	UpdateUserStatus(ctx context.Context, userID string, userStatus, mailStatus int, email string) (err error)
+	UpdateUserStatus(ctx context.Context, userID string, userStatus, mailStatus int, email string, suspendedUntil time.Time) (err error)
 	GetUserInfo(ctx context.Context, userID string) (user *entity.User, exist bool, err error)
 	GetUserInfoByEmail(ctx context.Context, email string) (user *entity.User, exist bool, err error)
 	GetUserPage(ctx context.Context, page, pageSize int, user *entity.User,
@@ -68,6 +68,7 @@ type UserAdminRepo interface {
 	AddUsers(ctx context.Context, users []*entity.User) (err error)
 	UpdateUserPassword(ctx context.Context, userID string, password string) (err error)
 	DeletePermanentlyUsers(ctx context.Context) (err error)
+	GetExpiredSuspendedUsers(ctx context.Context) (users []*entity.User, err error)
 }
 
 // UserAdminService user service
@@ -156,7 +157,8 @@ func (us *UserAdminService) UpdateUserStatus(ctx context.Context, req *schema.Up
 		userInfo.MailStatus = entity.EmailStatusAvailable
 	}
 
-	err = us.userRepo.UpdateUserStatus(ctx, userInfo.ID, userInfo.Status, userInfo.MailStatus, userInfo.EMail)
+	suspendedUntil := req.GetSuspendedUntil()
+	err = us.userRepo.UpdateUserStatus(ctx, userInfo.ID, userInfo.Status, userInfo.MailStatus, userInfo.EMail, suspendedUntil)
 	if err != nil {
 		return err
 	}
@@ -525,6 +527,9 @@ func (us *UserAdminService) GetUserPage(ctx context.Context, req *schema.GetUser
 		} else if u.Status == entity.UserStatusSuspended {
 			t.Status = constant.UserSuspended
 			t.SuspendedAt = u.SuspendedAt.Unix()
+			if !u.SuspendedUntil.IsZero() {
+				t.SuspendedUntil = u.SuspendedUntil.Unix()
+			}
 		} else if u.MailStatus == entity.EmailStatusToBeVerified {
 			t.Status = constant.UserInactive
 		} else {
@@ -624,4 +629,36 @@ func (us *UserAdminService) DeletePermanently(ctx context.Context, req *schema.D
 	}
 
 	return errors.BadRequest(reason.RequestFormatError)
+}
+
+// CheckAndUnsuspendExpiredUsers checks for users whose suspension has expired and restores them to normal status
+func (us *UserAdminService) CheckAndUnsuspendExpiredUsers(ctx context.Context) error {
+	// Find all suspended users whose suspension time has expired
+	expiredUsers, err := us.userRepo.GetExpiredSuspendedUsers(ctx)
+	if err != nil {
+		return err
+	}
+
+	now := time.Now()
+	for _, user := range expiredUsers {
+		// Check if suspension has expired (not permanent and time has passed)
+		if user.Status == entity.UserStatusSuspended &&
+			!user.SuspendedUntil.IsZero() &&
+			user.SuspendedUntil.Before(now) {
+
+			log.Infof("Unsuspending user %s (ID: %s) - suspension expired at %v",
+				user.Username, user.ID, user.SuspendedUntil)
+
+			// Update user status to normal
+			err = us.userRepo.UpdateUserStatus(ctx, user.ID, entity.UserStatusAvailable,
+				entity.EmailStatusAvailable, user.EMail, time.Time{})
+			if err != nil {
+				log.Errorf("Failed to unsuspend user %s (ID: %s): %v",
+					user.Username, user.ID, err)
+				continue
+			}
+		}
+	}
+
+	return nil
 }

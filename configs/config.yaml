@@ -40,4 +40,5 @@ ui:
   public_url: '/'
   api_url: '/'
   base_url: ''
+  api_base_url: ''
 

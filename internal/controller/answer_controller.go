@@ -69,7 +69,7 @@ func NewAnswerController(
 // RemoveAnswer delete answer
 // @Summary delete answer
 // @Description delete answer
-// @Tags api-answer
+// @Tags Answer
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -119,7 +119,7 @@ func (ac *AnswerController) RemoveAnswer(ctx *gin.Context) {
 
 // RecoverAnswer recover answer
 // @Summary recover answer
-// @Description recover deleted answer
+// @Description recover the deleted answer
 // @Tags Answer
 // @Accept json
 // @Produce json
@@ -151,16 +151,16 @@ func (ac *AnswerController) RecoverAnswer(ctx *gin.Context) {
 	handler.HandleResponse(ctx, err, nil)
 }
 
-// Get godoc
-// @Summary Get Answer
-// @Description Get Answer
-// @Tags api-answer
-// @Accept  json
-// @Produce  json
-// @Param id query string true "Answer TagID"  default(1)
-// @Router  /answer/api/v1/answer/info [get]
-// @Success 200 {string} string ""
-func (ac *AnswerController) Get(ctx *gin.Context) {
+// GetAnswerInfo get answer info
+// @Summary Get Answer Detail
+// @Description Get Answer Detail
+// @Tags Answer
+// @Accept json
+// @Produce json
+// @Param id query string true "id"
+// @Success 200 {object} handler.RespBody{data=schema.GetAnswerInfoResp}
+// @Router /answer/api/v1/answer/info [get]
+func (ac *AnswerController) GetAnswerInfo(ctx *gin.Context) {
 	id := ctx.Query("id")
 	id = uid.DeShortID(id)
 	userID := middleware.GetLoginUserIDFromContext(ctx)
@@ -174,23 +174,23 @@ func (ac *AnswerController) Get(ctx *gin.Context) {
 		handler.HandleResponse(ctx, fmt.Errorf(""), gin.H{})
 		return
 	}
-	handler.HandleResponse(ctx, err, gin.H{
-		"info":     info,
-		"question": questionInfo,
+	handler.HandleResponse(ctx, err, &schema.GetAnswerInfoResp{
+		Info:     info,
+		Question: questionInfo,
 	})
 }
 
-// Add godoc
-// @Summary Insert Answer
-// @Description Insert Answer
-// @Tags api-answer
-// @Accept  json
-// @Produce  json
+// AddAnswer add answer
+// @Summary Add Answer
+// @Description add answer
+// @Tags Answer
+// @Accept json
+// @Produce json
 // @Security ApiKeyAuth
-// @Param data body schema.AnswerAddReq  true "AnswerAddReq"
-// @Success 200 {string} string ""
+// @Param data body schema.AnswerAddReq true "add answer request"
+// @Success 200 {object} handler.RespBody{}
 // @Router /answer/api/v1/answer [post]
-func (ac *AnswerController) Add(ctx *gin.Context) {
+func (ac *AnswerController) AddAnswer(ctx *gin.Context) {
 	req := &schema.AnswerAddReq{}
 	if handler.BindAndCheck(ctx, req) {
 		return
@@ -292,17 +292,17 @@ func (ac *AnswerController) Add(ctx *gin.Context) {
 	})
 }
 
-// Update godoc
+// UpdateAnswer update answer
 // @Summary Update Answer
 // @Description Update Answer
-// @Tags api-answer
-// @Accept  json
-// @Produce  json
+// @Tags Answer
+// @Accept json
+// @Produce json
 // @Security ApiKeyAuth
-// @Param data body schema.AnswerUpdateReq  true "AnswerUpdateReq"
-// @Success 200 {string} string ""
+// @Param data body schema.AnswerUpdateReq true "AnswerUpdateReq"
+// @Success 200 {object} handler.RespBody{}
 // @Router /answer/api/v1/answer [put]
-func (ac *AnswerController) Update(ctx *gin.Context) {
+func (ac *AnswerController) UpdateAnswer(ctx *gin.Context) {
 	req := &schema.AnswerUpdateReq{}
 	if handler.BindAndCheck(ctx, req) {
 		return
@@ -360,9 +360,9 @@ func (ac *AnswerController) Update(ctx *gin.Context) {
 // AnswerList godoc
 // @Summary AnswerList
 // @Description AnswerList <br> <b>order</b> (default or updated)
-// @Tags api-answer
-// @Accept  json
-// @Produce  json
+// @Tags Answer
+// @Accept json
+// @Produce json
 // @Param question_id query string true "question_id"
 // @Param order query string true "order"
 // @Param page query string true "page"
@@ -402,17 +402,17 @@ func (ac *AnswerController) AnswerList(ctx *gin.Context) {
 	})
 }
 
-// Accepted godoc
-// @Summary Accepted
-// @Description Accepted
-// @Tags api-answer
-// @Accept  json
-// @Produce  json
+// AcceptAnswer accept answer
+// @Summary Accept Answer
+// @Description Accept Answer
+// @Tags Answer
+// @Accept json
+// @Produce json
 // @Security ApiKeyAuth
-// @Param data body schema.AcceptAnswerReq  true "AcceptAnswerReq"
-// @Success 200 {string} string ""
+// @Param data body schema.AcceptAnswerReq true "AcceptAnswerReq"
+// @Success 200 {object} handler.RespBody{}
 // @Router /answer/api/v1/answer/acceptance [post]
-func (ac *AnswerController) Accepted(ctx *gin.Context) {
+func (ac *AnswerController) AcceptAnswer(ctx *gin.Context) {
 	req := &schema.AcceptAnswerReq{}
 	if handler.BindAndCheck(ctx, req) {
 		return

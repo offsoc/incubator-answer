@@ -62,7 +62,7 @@ func main() {
 `
 	goModTpl = `module answer
 
-go 1.22
+go 1.23
 `
 )
 
